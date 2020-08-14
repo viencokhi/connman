@@ -21,7 +21,7 @@ func NewSpot(name, pass string) *Spot {
 
 //Add add new hotspot network
 func (s *Spot) Add() error {
-	cmd := fmt.Sprintf(`%v add %v %v`, spotlightPath, s.name, s.pass)
+	cmd := fmt.Sprintf(`sudo "%v" add "%v" "%v"`, spotlightPath, s.name, s.pass)
 	out, err := exe(cmd, "add spot")
 	if err != nil {
 		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
@@ -34,7 +34,7 @@ func (s *Spot) Up() error {
 	if s.deleted {
 		return fmt.Errorf("spot:%v is deleted can not be up", s.name)
 	}
-	cmd := fmt.Sprintf(`%v up %v`, spotlightPath, s.name)
+	cmd := fmt.Sprintf(`sudo "%v" up "%v"`, spotlightPath, s.name)
 	out, err := exe(cmd, "conn up")
 	if err != nil {
 		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
@@ -59,7 +59,7 @@ func (s *Spot) Down() error {
 	if s.deleted {
 		return fmt.Errorf("spot:%v is deleted can not be down", s.name)
 	}
-	cmd := fmt.Sprintf(`%v down %v`, spotlightPath, s.name)
+	cmd := fmt.Sprintf(`sudo "%v" down "%v"`, spotlightPath, s.name)
 	out, err := exe(cmd, "conn up")
 	if err != nil {
 		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
@@ -73,8 +73,8 @@ func (s *Spot) Delete() error {
 	if s.deleted {
 		return nil
 	}
-	cmd := fmt.Sprintf(`%v delete %v`, spotlightPath, s.name)
-	out, err := exe(cmd, "conn up")
+	cmd := fmt.Sprintf(`sudo "%v" delete "%v"`, spotlightPath, s.name)
+	out, err := exe(cmd, "conn delete")
 	if err != nil {
 		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
 	}
