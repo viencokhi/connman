@@ -17,15 +17,8 @@ var wiconnPath string = "/home/eco/go/src/connman/scripts/./wiconn.sh"
 var errArgumentCount = errors.New("argument count error: you can pass network name and password if needed")
 
 //NewWifiNetwork WifiNetwork constructor
-func NewWifiNetwork(args ...string) (*WifiNetwork, error) {
-	switch len(args) {
-	case 1:
-		return &WifiNetwork{name: args[0], up: false}, nil
-	case 2:
-		return &WifiNetwork{name: args[0], pass: args[1], up: false}, nil
-	default:
-		return nil, errArgumentCount
-	}
+func NewWifiNetwork(name, pass string) *WifiNetwork {
+	return &WifiNetwork{name: name, pass: pass, up: false}
 }
 
 //Connect main network connection function
