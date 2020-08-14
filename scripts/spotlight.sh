@@ -27,6 +27,15 @@ function int_up(){
     fi
 }
 
+function error_check(){
+    success=$(echo "$1" | grep "Error\|error")
+    if [ ! -z "$success" ]
+    then
+        echo "$1"
+        exit 4
+    fi
+}
+
 function add_network(){
     if [ $# -lt 2 ]; then
         echo "not enoght argument to add a hotspot network"
@@ -34,13 +43,7 @@ function add_network(){
     fi
     # add network
     result=$(nmcli con add type wifi ifname "$1" con-name "$3" autoconnect yes ssid "$3")
-    success=$(echo $result | grep "Error")
-    # simple error check mechanism
-    if [ -z success ]
-    then
-        echo "$result"
-        exit 3
-    fi
+    error_check "$result"
     # set comm node
     nmcli con modify "$3" 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared
 
@@ -66,12 +69,7 @@ function network_manage(){
             echo "not a valid command. use [up down delete]"
             ;;
     esac
-    success=$(echo "$result" | grep "Error")
-    if [ ! -z "$success" ]
-    then
-        echo "$result"
-        exit 5
-    fi
+    error_check "$result"
 }
 
 # get wifi interface
@@ -103,4 +101,3 @@ case $1 in
         echo "  [command] : add, add-con, up, down, delete"
         ;;
 esac
-echo "success"
