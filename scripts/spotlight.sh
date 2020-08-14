@@ -67,7 +67,7 @@ function network_manage(){
             ;;
     esac
     success=$(echo "$result" | grep "Error")
-    if [ -z "$success" ]
+    if [ ! -z "$success" ]
     then
         echo "$result"
         exit 5
