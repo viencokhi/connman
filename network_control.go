@@ -75,19 +75,28 @@ func ReadNetworks() []byte {
 	var configs []byte
 	if penman.IsFileExist(configPath) {
 		if penman.IsFileEmpty(configPath) {
-			configs = jin.MakeEmptyJson()
-		} else {
-			configs = penman.Read(configPath)
+			return []byte(`{}`)
 		}
+		configs = penman.Read(configPath)
 	} else {
-		configs = jin.MakeEmptyJson()
+		return []byte(`{}`)
 	}
 	return configs
 }
 
+//ReadNetwork Reads a saved network
+func ReadNetwork(networkName string) (*WifiNetwork, error) {
+	networks := ReadNetworks()
+	pass, err := jin.GetString(networks, networkName)
+	if err != nil {
+		return nil, err
+	}
+	return &WifiNetwork{name: networkName, pass: pass, up: false}, nil
+}
+
 //SaveNetwork save network to config path
 func SaveNetwork(networkName, passphrase string) error {
-	if result, _ := isThisNetworkSaved(networkName); result {
+	if result, _ := hasThisNetwork(networkName); result {
 		return nil
 	}
 	var err error
@@ -109,7 +118,7 @@ func SaveNetwork(networkName, passphrase string) error {
 	return nil
 }
 
-func isThisNetworkSaved(network string) (bool, error) {
+func hasThisNetwork(network string) (bool, error) {
 	nets := ReadNetworks()
 	_, err := jin.Get(nets, network)
 	if err != nil {
