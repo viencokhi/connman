@@ -10,13 +10,14 @@ import (
 )
 
 var (
-	configPath            string = "/home/eco/wifi.conf"
-	errNoNetworkAvailable error  = errors.New("no available network")
+	configPath            string        = "/home/eco/wifi.conf"
+	errNoNetworkAvailable error         = errors.New("no available network")
+	attempDelay           time.Duration = 2 * time.Second
 )
 
 //GetNetworks get available wifi networks
 func GetNetworks() ([]string, error) {
-	cmd := "nmcli --fields SSID device wifi"
+	cmd := "sudo nmcli --fields SSID device wifi"
 	out, err := exe(cmd, "conn up")
 	if err != nil {
 		return nil, fmt.Errorf("error:%v, out:%v", err.Error(), out)
@@ -30,30 +31,39 @@ func GetNetworks() ([]string, error) {
 	return networks, nil
 }
 
-//HotspotOnWifiOff hotspot on wifi network off
-func HotspotOnWifiOff(spot *Spot, wifi *WifiNetwork) error {
-	var err error
-	err = wifi.Disconnect()
-	if err != nil {
-		return err
-	}
-	time.Sleep(3 * time.Second)
-	err = spot.Up()
+//HotspotOn hotspot on wifi network off
+func HotspotOn(spot *Spot) error {
+	err := spot.Up()
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-//HotspotOffWifiOn hotspot off wifi network on
-func HotspotOffWifiOn(spot *Spot, wifi *WifiNetwork) error {
+//ConnectAvailable scan, find and connect a saved available wifi network
+func ConnectAvailable() error {
+	wifi, err := AvailableNetwork()
+	if err != nil {
+		return err
+	}
+	if wifi == nil {
+		return errNoNetworkAvailable
+	}
+	err = wifi.Connect()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//HotspotOff hotspot off wifi network on
+func HotspotOff(spot *Spot) error {
 	var err error
 	err = spot.Down()
 	if err != nil {
 		return err
 	}
-	time.Sleep(3 * time.Second)
-	err = wifi.Connect()
+	err = ConnectAvailable()
 	if err != nil {
 		return err
 	}
@@ -72,8 +82,6 @@ func ReadNetworks() []byte {
 	} else {
 		configs = jin.MakeEmptyJson()
 	}
-	fmt.Println(configPath)
-	fmt.Println(string(configs))
 	return configs
 }
 
@@ -111,26 +119,37 @@ func isThisNetworkSaved(network string) (bool, error) {
 }
 
 //AvailableNetwork find saved available network
-func AvailableNetwork() (string, string, error) {
-	available, err := GetNetworks()
-	if err != nil {
-		return "", "", err
-	}
-	networks := ReadNetworks()
-	list, err := jin.GetKeys(networks)
-	if err != nil {
-		return "", "", err
-	}
-	for _, a := range available {
-		for _, n := range list {
-			if a == n {
-				pass, err := jin.GetString(networks, n)
-				if err != nil {
-					return "", "", err
+func AvailableNetwork() (*WifiNetwork, error) {
+	var done bool = false
+	var attempt int = 0
+	var attemptLimit int = 5
+	for attempt < attemptLimit {
+		if done {
+			break
+		}
+		available, err := GetNetworks()
+		if err != nil {
+			return nil, err
+		}
+		networks := ReadNetworks()
+		list, err := jin.GetKeys(networks)
+		if err != nil {
+			return nil, err
+		}
+		for _, a := range available {
+			for _, n := range list {
+				if a == n {
+					pass, err := jin.GetString(networks, n)
+					if err != nil {
+						return nil, err
+					}
+					done = true
+					return &WifiNetwork{name: n, pass: pass, up: false}, nil
 				}
-				return n, pass, nil
 			}
 		}
+		time.Sleep(attempDelay)
+		attempt++
 	}
-	return "", "", errNoNetworkAvailable
+	return nil, errNoNetworkAvailable
 }
