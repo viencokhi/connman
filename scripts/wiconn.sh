@@ -43,7 +43,6 @@ function connect(){
         echo "  wiconn add <network_name> <password>"
         exit 2
     fi
-    nmcli d wifi list > /dev/null
     if [ "$#" -eq 2 ]
     then
         result=$(sudo nmcli device wifi connect "$2")
@@ -80,9 +79,6 @@ then
 fi
 
 case $1 in
-    "add")
-        add_connection "$@"
-        ;;
     "con"|"connect"|"conn")
         connect "$@"
         ;;
