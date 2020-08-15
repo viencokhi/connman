@@ -12,8 +12,8 @@ var (
 )
 
 func startUp() {
-	resetNetwork()
 	lastStatus = status()
+	resetNetwork()
 	hotspotOn(mainSpot)
 	go startToListen()
 	time.Sleep(hotspotTime)
