@@ -20,7 +20,6 @@ func status() []byte {
 		status, _ = jin.AddKeyValueString(status, "error", err.Error())
 	}
 	saved := readNetworks()
-	availableNetworks := jin.MakeArrayString(available)
 	status, err = jin.SetBool(status, connectedToInternet(), "internet")
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
@@ -37,9 +36,12 @@ func status() []byte {
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
 	}
-	status, err = jin.Set(status, availableNetworks, "availableNetworks")
-	if err != nil {
-		status, _ = jin.SetString(status, err.Error(), "error")
+	if available != nil {
+		availableNetworks := jin.MakeArrayString(available)
+		status, err = jin.Set(status, availableNetworks, "availableNetworks")
+		if err != nil {
+			status, _ = jin.SetString(status, err.Error(), "error")
+		}
 	}
 	status, err = jin.Set(status, saved, "savedNetworks")
 	if err != nil {
