@@ -16,6 +16,28 @@ var (
 	attempDelay           time.Duration = 2 * time.Second
 )
 
+func resetNetwork() error {
+	var cmd string
+	var out string
+	var err error
+	cmd = `sudo killall wpa_supplicant`
+	out, err = exe(cmd, "killall wpa_supplicant")
+	if err != nil {
+		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+	}
+	cmd = `sudo systemctl restart dnsmasq`
+	out, err = exe(cmd, "restart dnsmasq")
+	if err != nil {
+		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+	}
+	cmd = `sudo systemctl restart NetworkManager`
+	out, err = exe(cmd, "restart NetworkManager")
+	if err != nil {
+		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+	}
+	return nil
+}
+
 func getIP() string {
 	ints, err := net.Interfaces()
 	if err != nil {
