@@ -13,55 +13,54 @@ var (
 )
 
 //Status network and connection status
-func Status() []byte {
+func status() []byte {
 	status := []byte(`{"internet":null, "connections":null, "connectedTo":null, "availableNetworks":null, "savedNetworks":null,"error":null}`)
-	connections := jin.MakeJsonWithMap(getConnections())
-	available, err := GetNetworks()
+	available, err := getNetworks()
 	if err != nil {
 		status, _ = jin.AddKeyValueString(status, "error", err.Error())
-		return status
 	}
-	saved := ReadNetworks()
+	saved := readNetworks()
 	availableNetworks := jin.MakeArrayString(available)
-	status, err = jin.SetBool(status, ConnectedToInternet(), "internet")
+	status, err = jin.SetBool(status, connectedToInternet(), "internet")
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
-		return status
 	}
+	connections := jin.MakeJsonWithMap(getConnections())
 	status, err = jin.Set(status, connections, "connections")
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
-		return status
 	}
-	connected := ConnectedTo()
+	connected := connectedTo()
 	if connected != "" {
 		status, err = jin.SetString(status, connected, "connectedTo")
 	}
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
-		fmt.Println("here", status)
-		return status
 	}
 	status, err = jin.Set(status, availableNetworks, "availableNetworks")
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
-		return status
 	}
 	status, err = jin.Set(status, saved, "savedNetworks")
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
-		return status
 	}
 	status, err = jin.SetString(status, "null", "error")
 	if err != nil {
 		status, _ = jin.SetString(status, err.Error(), "error")
-		return status
+	}
+	ip := getIP()
+	if ip != "" {
+		status, err = jin.AddKeyValueString(status, "ip", ip)
+		if err != nil {
+			status, _ = jin.SetString(status, err.Error(), "error")
+		}
 	}
 	return status
 }
 
 //ConnectedTo returns SSID of wifi connection
-func ConnectedTo() string {
+func connectedTo() string {
 	err := interfaceUp()
 	if err != nil {
 		return ""
@@ -76,8 +75,8 @@ func ConnectedTo() string {
 }
 
 //ConnectAvailable scan, find and connect a saved available wifi network
-func ConnectAvailable() error {
-	wifi, err := AvailableNetwork()
+func connectAvailable() error {
+	wifi, err := availableNetwork()
 	if err != nil {
 		return err
 	}
@@ -92,7 +91,7 @@ func ConnectAvailable() error {
 }
 
 //ReadNetworks Read saved networks from config path
-func ReadNetworks() []byte {
+func readNetworks() []byte {
 	var configs []byte
 	if penman.IsFileExist(configPath) {
 		if penman.IsFileEmpty(configPath) {
@@ -106,8 +105,8 @@ func ReadNetworks() []byte {
 }
 
 //ReadNetwork Reads a saved network
-func ReadNetwork(networkName string) (*WifiNetwork, error) {
-	networks := ReadNetworks()
+func readNetwork(networkName string) (*WifiNetwork, error) {
+	networks := readNetworks()
 	pass, err := jin.GetString(networks, networkName)
 	if err != nil {
 		return nil, err
@@ -116,7 +115,7 @@ func ReadNetwork(networkName string) (*WifiNetwork, error) {
 }
 
 //SaveNetwork save network to config path
-func SaveNetwork(networkName, passphrase string) error {
+func saveNetwork(networkName, passphrase string) error {
 	if result, _ := hasThisNetwork(networkName); result {
 		return nil
 	}
@@ -140,12 +139,12 @@ func SaveNetwork(networkName, passphrase string) error {
 }
 
 //RemoveNetwork remove network from config path
-func RemoveNetwork(network string) error {
+func removeNetwork(network string) error {
 	if result, _ := hasThisNetwork(network); !result {
 		return nil
 	}
 	var err error
-	configs := ReadNetworks()
+	configs := readNetworks()
 	configs, err = jin.Delete(configs, network)
 	if err != nil {
 		return err
@@ -155,7 +154,7 @@ func RemoveNetwork(network string) error {
 }
 
 func hasThisNetwork(network string) (bool, error) {
-	nets := ReadNetworks()
+	nets := readNetworks()
 	_, err := jin.Get(nets, network)
 	if err != nil {
 		return false, err
@@ -164,7 +163,7 @@ func hasThisNetwork(network string) (bool, error) {
 }
 
 //AvailableNetwork find saved available network
-func AvailableNetwork() (*WifiNetwork, error) {
+func availableNetwork() (*WifiNetwork, error) {
 	var done bool = false
 	var attempt int = 0
 	var attemptLimit int = 5
@@ -172,11 +171,11 @@ func AvailableNetwork() (*WifiNetwork, error) {
 		if done {
 			break
 		}
-		available, err := GetNetworks()
+		available, err := getNetworks()
 		if err != nil {
 			return nil, err
 		}
-		networks := ReadNetworks()
+		networks := readNetworks()
 		list, err := jin.GetKeys(networks)
 		if err != nil {
 			return nil, err
