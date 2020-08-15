@@ -11,6 +11,7 @@ import (
 
 const (
 	masterPort string = "80"
+	serveIP    string = "0.0.0.0"
 )
 
 var (
@@ -29,7 +30,7 @@ func routeCreation() {
 func serverCreation() {
 	server = &http.Server{
 		Handler: mainRouter,
-		Addr:    "localhost:" + masterPort,
+		Addr:    serveIP + ":" + masterPort,
 	}
 }
 
