@@ -12,6 +12,7 @@ var (
 )
 
 func startUp() {
+	resetNetwork()
 	lastStatus = status()
 	hotspotOn(mainSpot)
 	go startToListen()
