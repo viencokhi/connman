@@ -99,7 +99,7 @@ func (s *Spot) Revive() error {
 }
 
 //HotspotOn hotspot on wifi network off
-func HotspotOn(spot *Spot) error {
+func hotspotOn(spot *Spot) error {
 	err := spot.Add()
 	if err != nil {
 		return err
@@ -112,7 +112,7 @@ func HotspotOn(spot *Spot) error {
 }
 
 //HotspotOff hotspot off wifi network on
-func HotspotOff(spot *Spot) error {
+func hotspotOff(spot *Spot) error {
 	err := spot.Add()
 	if err != nil {
 		return err
@@ -121,7 +121,7 @@ func HotspotOff(spot *Spot) error {
 	if err != nil {
 		return err
 	}
-	err = ConnectAvailable()
+	err = connectAvailable()
 	if err != nil {
 		return err
 	}
