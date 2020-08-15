@@ -1,20 +1,11 @@
 package connman
 
-import (
-	"errors"
-	"fmt"
-)
-
 //WifiNetwork wifi connection struct
 type WifiNetwork struct {
 	name string
 	pass string
 	up   bool
 }
-
-var wiconnPath string = "/home/eco/go/src/connman/scripts/./wiconn.sh"
-
-var errArgumentCount = errors.New("argument count error: you can pass network name and password if needed")
 
 //NewWifiNetwork WifiNetwork constructor
 func NewWifiNetwork(name, pass string) *WifiNetwork {
@@ -26,15 +17,9 @@ func (n *WifiNetwork) Connect() error {
 	if n.up {
 		return nil
 	}
-	var cmd string
-	if n.pass == "" {
-		cmd = fmt.Sprintf(`sudo "%v" connect "%v"`, wiconnPath, n.name)
-	} else {
-		cmd = fmt.Sprintf(`sudo "%v" connect "%v" "%v"`, wiconnPath, n.name, n.pass)
-	}
-	out, err := exe(cmd, "connect network")
+	err := ConnectToNetwork(n.name, n.pass)
 	if err != nil {
-		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		return err
 	}
 	n.up = true
 	return nil
@@ -45,15 +30,9 @@ func (n *WifiNetwork) Disconnect() error {
 	if !n.up {
 		return nil
 	}
-	var cmd string
-	if n.pass == "" {
-		cmd = fmt.Sprintf(`sudo "%v" disconnect "%v"`, wiconnPath, n.name)
-	} else {
-		cmd = fmt.Sprintf(`sudo "%v" disconnect "%v" "%v"`, wiconnPath, n.name, n.pass)
-	}
-	out, err := exe(cmd, "disconnect network")
+	err := DisconnectFromNetwork(n.name)
 	if err != nil {
-		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		return err
 	}
 	n.up = false
 	return nil
