@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -14,6 +15,30 @@ var (
 	errNotConnected       error         = errors.New("not connected")
 	attempDelay           time.Duration = 2 * time.Second
 )
+
+func getIP() string {
+	ints, err := net.Interfaces()
+	if err != nil {
+		return ""
+	}
+	for _, in := range ints {
+		prefix := in.Name[0]
+		if prefix == 'l' {
+			continue
+		}
+		addr, err := in.Addrs()
+		if err != nil {
+			continue
+		}
+		if addr == nil {
+			continue
+		}
+		ip := addr[0].String()
+		tokens := strings.Split(ip, "/")
+		return tokens[0]
+	}
+	return ""
+}
 
 func getConnections() map[string]string {
 	connections := make(map[string]string)
@@ -47,7 +72,7 @@ func getConnections() map[string]string {
 }
 
 //ConnectedToInternet internet connection check
-func ConnectedToInternet() bool {
+func connectedToInternet() bool {
 	resp, err := http.Get("https://www.google.com/")
 	if err != nil {
 		return false
@@ -59,7 +84,7 @@ func ConnectedToInternet() bool {
 }
 
 //ConnectToNetwork main connect function
-func ConnectToNetwork(name, pass string) error {
+func connectToNetwork(name, pass string) error {
 	var done bool = false
 	var cmd string
 	var attempt int = 0
@@ -69,7 +94,7 @@ func ConnectToNetwork(name, pass string) error {
 		return err
 	}
 	for attempt < attemptLimit {
-		ssid := ConnectedTo()
+		ssid := connectedTo()
 		if ssid == name {
 			done = true
 			break
@@ -90,8 +115,8 @@ func ConnectToNetwork(name, pass string) error {
 }
 
 //DisconnectFromNetwork main disconnect function
-func DisconnectFromNetwork(name string) error {
-	ssid := ConnectedTo()
+func disconnectFromNetwork(name string) error {
+	ssid := connectedTo()
 	if ssid != name {
 		return nil
 	}
