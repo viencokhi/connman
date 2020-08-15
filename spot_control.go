@@ -8,23 +8,28 @@ import (
 type Spot struct {
 	name    string
 	pass    string
+	exists  bool
 	up      bool
 	deleted bool
 }
 
-var spotlightPath string = "/home/eco/go/src/connman/scripts/./spotlight.sh"
-
 // NewSpot Spot struct const.
 func NewSpot(name, pass string) *Spot {
-	return &Spot{name, pass, false, false}
+	exists, err := spotExists(name)
+	if err != nil {
+		return nil
+	}
+	return &Spot{name: name, pass: pass, exists: exists, up: false, deleted: false}
 }
 
 //Add add new hotspot network
 func (s *Spot) Add() error {
-	cmd := fmt.Sprintf(`sudo "%v" add "%v" "%v"`, spotlightPath, s.name, s.pass)
-	out, err := exe(cmd, "add spot")
+	if s.exists {
+		return nil
+	}
+	err := addSpot(s.name, s.pass)
 	if err != nil {
-		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		return err
 	}
 	return nil
 }
@@ -34,10 +39,9 @@ func (s *Spot) Up() error {
 	if s.deleted {
 		return fmt.Errorf("spot:%v is deleted can not be up", s.name)
 	}
-	cmd := fmt.Sprintf(`sudo "%v" up "%v"`, spotlightPath, s.name)
-	out, err := exe(cmd, "conn up")
+	err := setSpot("up", s.name)
 	if err != nil {
-		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		return err
 	}
 	s.up = true
 	return nil
@@ -59,10 +63,9 @@ func (s *Spot) Down() error {
 	if s.deleted {
 		return fmt.Errorf("spot:%v is deleted can not be down", s.name)
 	}
-	cmd := fmt.Sprintf(`sudo "%v" down "%v"`, spotlightPath, s.name)
-	out, err := exe(cmd, "conn up")
+	err := setSpot("down", s.name)
 	if err != nil {
-		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		return err
 	}
 	s.up = false
 	return nil
@@ -73,10 +76,9 @@ func (s *Spot) Delete() error {
 	if s.deleted {
 		return nil
 	}
-	cmd := fmt.Sprintf(`sudo "%v" delete "%v"`, spotlightPath, s.name)
-	out, err := exe(cmd, "conn delete")
+	err := setSpot("delete", s.name)
 	if err != nil {
-		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		return err
 	}
 	s.deleted = true
 	return nil
@@ -93,5 +95,35 @@ func (s *Spot) Revive() error {
 	}
 	s.up = false
 	s.deleted = false
+	return nil
+}
+
+//HotspotOn hotspot on wifi network off
+func HotspotOn(spot *Spot) error {
+	err := spot.Add()
+	if err != nil {
+		return err
+	}
+	err = spot.Up()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+//HotspotOff hotspot off wifi network on
+func HotspotOff(spot *Spot) error {
+	err := spot.Add()
+	if err != nil {
+		return err
+	}
+	err = spot.Down()
+	if err != nil {
+		return err
+	}
+	err = ConnectAvailable()
+	if err != nil {
+		return err
+	}
 	return nil
 }
