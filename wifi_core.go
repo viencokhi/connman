@@ -6,21 +6,6 @@ import (
 	"strings"
 )
 
-//ConnectedTo returns SSID of wifi connection
-func ConnectedTo() string {
-	err := interfaceUp()
-	if err != nil {
-		return ""
-	}
-	cmd := fmt.Sprintf(`nmcli connection show | grep "%v"`, wifiInterface)
-	out, _ := exe(cmd, "connected to")
-	index := strings.Index(out, " ")
-	if index == -1 {
-		return ""
-	}
-	return out[:index]
-}
-
 func isInterfaceUp() (bool, error) {
 	cmd := fmt.Sprintf(`ip link show "%v"`, wifiInterface)
 	out, _ := exe(cmd, "is interface up")
@@ -94,6 +79,9 @@ func GetNetworks() ([]string, error) {
 	tokens := strings.Split(string(out), "\n")
 	tokens = tokens[1:]
 	for _, t := range tokens {
+		if t == "" {
+			continue
+		}
 		networks = append(networks, strings.TrimSpace(t))
 	}
 	return networks, nil
