@@ -3,6 +3,8 @@ package connman
 import (
 	"errors"
 	"fmt"
+	"net"
+	"net/http"
 	"time"
 )
 
@@ -10,9 +12,51 @@ var (
 	errNoNetworkAvailable error         = errors.New("no available network")
 	errNoWifiInterface    error         = errors.New("no wifi interface")
 	errNotConnected       error         = errors.New("not connected")
-	configPath            string        = "/home/eco/wifi.conf"
 	attempDelay           time.Duration = 2 * time.Second
 )
+
+func getConnections() map[string]string {
+	connections := make(map[string]string)
+	connections["wifi"] = "false"
+	connections["ethernet"] = "false"
+	ints, err := net.Interfaces()
+	if err != nil {
+		return connections
+	}
+	for _, in := range ints {
+		addr, err := in.Addrs()
+		if err != nil {
+			continue
+		}
+		if addr == nil {
+			continue
+		}
+		prefix := in.Name[0]
+		switch prefix {
+		case 'l':
+			continue
+		case 'w':
+			connections["wifi"] = "true"
+			break
+		case 'e':
+			connections["ethernet"] = "true"
+			break
+		}
+	}
+	return connections
+}
+
+//ConnectedToInternet internet connection check
+func ConnectedToInternet() bool {
+	resp, err := http.Get("https://www.google.com/")
+	if err != nil {
+		return false
+	}
+	if resp.StatusCode == 200 {
+		return true
+	}
+	return false
+}
 
 //ConnectToNetwork main connect function
 func ConnectToNetwork(name, pass string) error {
