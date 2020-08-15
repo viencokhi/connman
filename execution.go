@@ -21,19 +21,19 @@ func errTimeOut(cmd string) error {
 }
 
 func exe(cmd, cmdName string) (string, error) {
-	fmt.Println("start", cmd)
+	fmt.Println(">>", cmd)
 	exechan := make(chan executionOut, 1)
 	go exeTimeout(cmd, cmdName, exechan)
 	select {
 	case exeOut := <-exechan:
 		if exeOut.err != nil {
-			fmt.Println("error", cmd)
+			fmt.Println("error")
 			return "", exeOut.err
 		}
-		fmt.Println("done", cmd, "out", exeOut.out)
+		fmt.Println("done")
 		return exeOut.out, nil
 	case <-time.After(timeout):
-		fmt.Println("timeout", cmd)
+		fmt.Println("timeout")
 		return "", errTimeOut(cmd)
 	}
 }
