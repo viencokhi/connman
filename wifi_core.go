@@ -65,7 +65,7 @@ func getWifiInterface() (string, error) {
 }
 
 //GetNetworks get available wifi networks
-func GetNetworks() ([]string, error) {
+func getNetworks() ([]string, error) {
 	err := interfaceUp()
 	if err != nil {
 		return nil, err
