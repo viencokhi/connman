@@ -17,7 +17,7 @@ func (n *WifiNetwork) Connect() error {
 	if n.up {
 		return nil
 	}
-	err := ConnectToNetwork(n.name, n.pass)
+	err := connectToNetwork(n.name, n.pass)
 	if err != nil {
 		return err
 	}
@@ -30,7 +30,7 @@ func (n *WifiNetwork) Disconnect() error {
 	if !n.up {
 		return nil
 	}
-	err := DisconnectFromNetwork(n.name)
+	err := disconnectFromNetwork(n.name)
 	if err != nil {
 		return err
 	}
