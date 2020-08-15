@@ -65,7 +65,7 @@ func connectedTo() string {
 	if err != nil {
 		return ""
 	}
-	cmd := fmt.Sprintf(`nmcli connection show | grep "%v"`, wifiInterface)
+	cmd := fmt.Sprintf(`sudo nmcli connection show | grep "%v"`, wifiInterface)
 	out, _ := exe(cmd, "connected to")
 	index := strings.Index(out, " ")
 	if index == -1 {
