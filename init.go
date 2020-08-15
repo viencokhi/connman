@@ -1,6 +1,9 @@
 package connman
 
-var wifiInterface string = ""
+var (
+	wifiInterface string = ""
+	lastStatus    []byte
+)
 
 func init() {
 	var err error
