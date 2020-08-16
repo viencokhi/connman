@@ -35,6 +35,10 @@ func resetNetwork() error {
 	if err != nil {
 		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
 	}
+	err = disconnectFromAllConnection()
+	if err != nil {
+		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+	}
 	return nil
 }
 
@@ -103,6 +107,28 @@ func connectedToInternet() bool {
 		return true
 	}
 	return false
+}
+
+func disconnectFromAllConnection() error {
+	cmd := `sudo nmcli -f NAME con sh`
+	out, err := exe(cmd, "get connection")
+	if err != nil {
+		return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+	}
+	tokens := strings.Split(out, "\n")
+	tokens = tokens[1:]
+	if len(tokens) == 0 {
+		return nil
+	}
+	for _, t := range tokens {
+		con := strings.TrimSpace(t)
+		cmd = fmt.Sprintf(`sudo nmcli con down "%v"`, con)
+		out, err = exe(cmd, "down connection")
+		if err != nil {
+			return fmt.Errorf("error:%v, out:%v", err.Error(), out)
+		}
+	}
+	return nil
 }
 
 //ConnectToNetwork main connect function

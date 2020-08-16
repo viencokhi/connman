@@ -64,6 +64,21 @@ func getWifiInterface() (string, error) {
 	return "", errNoWifiInterface
 }
 
+//ConnectedTo returns SSID of wifi connection
+func connectedTo() string {
+	err := interfaceUp()
+	if err != nil {
+		return ""
+	}
+	cmd := fmt.Sprintf(`sudo nmcli connection show | grep "%v"`, wifiInterface)
+	out, _ := exe(cmd, "connected to")
+	index := strings.Index(out, " ")
+	if index == -1 {
+		return ""
+	}
+	return out[:index]
+}
+
 //GetNetworks get available wifi networks
 func getNetworks() ([]string, error) {
 	err := interfaceUp()
