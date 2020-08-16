@@ -22,7 +22,7 @@ var (
 func routeCreation() {
 	mainRouter = mux.NewRouter()
 	mainRouter.HandleFunc("/", rootHandle)
-	mainRouter.HandleFunc("/state", stateHandle)
+	mainRouter.HandleFunc("/status", statusHandle)
 	mainRouter.HandleFunc("/add", addHandle)
 	mainRouter.HandleFunc("/remove", addHandle)
 	mainRouter.HandleFunc("/close", closeHandle)
@@ -59,7 +59,7 @@ func closeHandle(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(""))
 }
 
-func stateHandle(w http.ResponseWriter, r *http.Request) {
+func statusHandle(w http.ResponseWriter, r *http.Request) {
 	w = headerMiddleware(w)
 	w.Write(lastStatus)
 }
