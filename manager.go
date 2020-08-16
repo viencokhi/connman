@@ -1,10 +1,8 @@
 package connman
 
 import (
-	"fmt"
 	"jin"
 	"penman"
-	"strings"
 	"time"
 )
 
@@ -59,21 +57,6 @@ func status() []byte {
 		}
 	}
 	return status
-}
-
-//ConnectedTo returns SSID of wifi connection
-func connectedTo() string {
-	err := interfaceUp()
-	if err != nil {
-		return ""
-	}
-	cmd := fmt.Sprintf(`sudo nmcli connection show | grep "%v"`, wifiInterface)
-	out, _ := exe(cmd, "connected to")
-	index := strings.Index(out, " ")
-	if index == -1 {
-		return ""
-	}
-	return out[:index]
 }
 
 //ConnectAvailable scan, find and connect a saved available wifi network
