@@ -6,14 +6,15 @@ import (
 )
 
 var (
-	hotspotTime   time.Duration = 5 * time.Minute
+	hotspotTime   time.Duration = 1 * time.Minute
 	nodeResetTime time.Duration = 1 * time.Minute
-	mainSpot      *Spot         = NewSpot("solarnode", "")
+	mainSpot      *Spot         = NewSpot("node1234", "")
 )
 
 func startUp() {
 	lastStatus = status()
-	resetNetwork()
+	disconnectFromAllConnection()
+	// resetNetwork()
 	hotspotOn(mainSpot)
 	go startToListen()
 	time.Sleep(hotspotTime)
