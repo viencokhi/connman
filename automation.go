@@ -6,9 +6,13 @@ import (
 )
 
 var (
-	hotspotTime   time.Duration = 1 * time.Minute
+	mainSpotName  string        = "solar"
+	signInTime    time.Duration = 1 * time.Minute
+	configTime    time.Duration = 5 * time.Minute
 	nodeResetTime time.Duration = 1 * time.Minute
-	mainSpot      *Spot         = NewSpot("node1234", "")
+	mainSpot      *Spot         = NewSpot(mainSpotName, "")
+	closeChannel  chan bool     = make(chan bool, 1)
+	signInChannel chan bool     = make(chan bool, 1)
 )
 
 func startUp() {
@@ -16,7 +20,22 @@ func startUp() {
 	disconnectFromAllConnection()
 	hotspotOn(mainSpot)
 	go startToListen()
-	time.Sleep(hotspotTime)
+
+	select {
+	case <-signInChannel:
+		select {
+		case <-closeChannel:
+			break
+		case <-time.After(configTime):
+			break
+		}
+		break
+	case <-closeChannel:
+		break
+	case <-time.After(signInTime):
+		break
+	}
+
 	hotspotOff(mainSpot)
 	server.Close()
 	connectAvailable()
@@ -24,7 +43,7 @@ func startUp() {
 
 func nodeLoop() {
 	fmt.Println("node started...")
-	time.Sleep(hotspotTime)
+	time.Sleep(nodeResetTime)
 }
 
 // Routine automation routine
@@ -32,6 +51,5 @@ func Routine() {
 	startUp()
 	for true {
 		nodeLoop()
-		time.Sleep(nodeResetTime)
 	}
 }
