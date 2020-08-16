@@ -1,0 +1,6 @@
+github.com/ecoshub/jin v0.0.0-20200709075549-5aac6f31a2ec h1:buwPtwsi/IT0msb7AW7q3arh8zpfO5seVm4UGR4/Xm4=
+github.com/ecoshub/jin v0.0.0-20200709075549-5aac6f31a2ec/go.mod h1:aRwU1uCYzI6mB4uenKxQmC0mmrDIAPcqI5cLtlf9EXY=
+github.com/ecoshub/penman v0.0.0-20200614111438-9a08c9a76079 h1:9cY4TvYkauYcN91218K7EnqwLvJTsBiNd7r1n5iEkV0=
+github.com/ecoshub/penman v0.0.0-20200614111438-9a08c9a76079/go.mod h1:/1u9UH2HFIQ7mGp5DEkSMtmlo02TmRt6KeF6dc0u8oA=
+github.com/gorilla/mux v1.7.4 h1:VuZ8uybHlWmqV03+zRzdwKL4tUnIp1MAQtp1mIFE1bc=
+github.com/gorilla/mux v1.7.4/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
