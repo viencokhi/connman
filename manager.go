@@ -1,9 +1,10 @@
 package connman
 
 import (
-	"jin"
-	"penman"
 	"time"
+
+	"github.com/ecoshub/jin"
+	"github.com/ecoshub/penman"
 )
 
 var (
