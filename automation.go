@@ -1,7 +1,6 @@
 package connman
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -9,13 +8,14 @@ var (
 	mainSpotName  string        = "solar"
 	signInTime    time.Duration = 1 * time.Minute
 	configTime    time.Duration = 5 * time.Minute
-	nodeResetTime time.Duration = 1 * time.Minute
 	mainSpot      *Spot         = NewSpot(mainSpotName, "")
 	closeChannel  chan bool     = make(chan bool, 1)
 	signInChannel chan bool     = make(chan bool, 1)
 )
 
 func startUp() {
+	disconnectFromAllConnection()
+	connectAvailable()
 	lastStatus = status()
 	disconnectFromAllConnection()
 	hotspotOn(mainSpot)
@@ -39,17 +39,4 @@ func startUp() {
 	hotspotOff(mainSpot)
 	server.Close()
 	connectAvailable()
-}
-
-func nodeLoop() {
-	fmt.Println("node started...")
-	time.Sleep(nodeResetTime)
-}
-
-// Routine automation routine
-func Routine() {
-	startUp()
-	for true {
-		nodeLoop()
-	}
 }
