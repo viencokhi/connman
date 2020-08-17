@@ -13,7 +13,7 @@ var (
 	errNoNetworkAvailable error         = errors.New("no available network")
 	errNoWifiInterface    error         = errors.New("no wifi interface")
 	errNotConnected       error         = errors.New("not connected")
-	attempDelay           time.Duration = 2 * time.Second
+	attempDelay           time.Duration = 3 * time.Second
 )
 
 func getIP() string {
