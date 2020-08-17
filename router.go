@@ -24,7 +24,7 @@ func routeCreation() {
 	mainRouter.HandleFunc("/", rootHandle)
 	mainRouter.HandleFunc("/status", statusHandle)
 	mainRouter.HandleFunc("/add", addHandle)
-	mainRouter.HandleFunc("/remove", addHandle)
+	mainRouter.HandleFunc("/remove", removeHandle)
 	mainRouter.HandleFunc("/close", closeHandle)
 }
 
@@ -51,10 +51,12 @@ func headerMiddleware(w http.ResponseWriter) http.ResponseWriter {
 }
 
 func rootHandle(w http.ResponseWriter, r *http.Request) {
+	w = headerMiddleware(w)
 	w.Write([]byte(`{"message":"welcome to solarnode"}`))
 }
 
 func closeHandle(w http.ResponseWriter, r *http.Request) {
+	w = headerMiddleware(w)
 	closeChannel <- true
 	w.Write([]byte(""))
 }
