@@ -13,30 +13,44 @@ var (
 	signInChannel chan bool     = make(chan bool, 1)
 )
 
-func startUp() {
-	disconnectFromAllConnection()
-	connectAvailable()
-	lastStatus = status()
-	disconnectFromAllConnection()
-	hotspotOn(mainSpot)
-	go startToListen()
+//StartUp main startup function.
+func StartUp() {
+	firstAttemptFailed := false
+	attemptCount := 0
+	hasInternetConnection := false
 
-	select {
-	case <-signInChannel:
-		select {
-		case <-closeChannel:
-			break
-		case <-time.After(configTime):
-			break
+	for !hasInternetConnection {
+		disconnectFromAllConnection()
+		connectAvailable()
+		lastStatus = status()
+		disconnectFromAllConnection()
+		hotspotOn(mainSpot)
+		go startToListen()
+		if firstAttemptFailed {
+			<-closeChannel
+		} else {
+			select {
+			case <-signInChannel:
+				select {
+				case <-closeChannel:
+					break
+				case <-time.After(configTime):
+					break
+				}
+				break
+			case <-closeChannel:
+				break
+			case <-time.After(signInTime):
+				break
+			}
 		}
-		break
-	case <-closeChannel:
-		break
-	case <-time.After(signInTime):
-		break
+		hotspotOff(mainSpot)
+		server.Close()
+		connectAvailable()
+		hasInternetConnection = connectedToInternet()
+		if attemptCount == 0 && !hasInternetConnection {
+			firstAttemptFailed = true
+		}
+		attemptCount++
 	}
-
-	hotspotOff(mainSpot)
-	server.Close()
-	connectAvailable()
 }
