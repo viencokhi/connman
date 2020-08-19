@@ -70,7 +70,7 @@ func connectedTo() string {
 	if err != nil {
 		return ""
 	}
-	cmd := fmt.Sprintf(`sudo nmcli connection show | grep "%v"`, wifiInterface)
+	cmd := fmt.Sprintf(`nmcli connection show | grep "%v"`, wifiInterface)
 	out, _ := exe(cmd, "connected to")
 	index := strings.Index(out, "  ")
 	if index == -1 {
@@ -85,7 +85,7 @@ func getNetworks() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	cmd := "sudo nmcli --fields SSID device wifi"
+	cmd := "nmcli --fields SSID device wifi"
 	out, err := exe(cmd, "conn up")
 	if err != nil {
 		return nil, fmt.Errorf("error:%v, out:%v", err.Error(), out)
